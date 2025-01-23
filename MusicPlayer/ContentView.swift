@@ -31,13 +31,6 @@ class PlaylistViewModel: ObservableObject {
         playlists.append(newPlaylist)
         savePlaylists()
     }
-
-    func addSong(to playlist: Playlist, song: Song) {
-        if let index = playlists.firstIndex(where: { $0.id == playlist.id }) {
-            playlists[index].songs.append(song)
-            savePlaylists()
-        }
-    }
     
     // === Saving ===
 
@@ -128,7 +121,7 @@ struct PlaylistDetailView: View {
         VStack {
             List(playlist.songs, id: \.id) { song in
                 Button(action: {
-                    print("path: ",song.filePath)
+//                    print("path: ",song.filePath)
                     playMusic(file: song.filePath)
                 }) {
                     Text(song.title)
