@@ -2,15 +2,13 @@ import SwiftUI
 import AVFoundation
 
 class MusicManager: NSObject, ObservableObject, UIDocumentPickerDelegate {
-    @State private var playlist: Playlist?
     @State private var currentTrack: URL?     // Currently playing track
     @State private var audioPlayer: AVAudioPlayer?
     @State private var pickerDelegate: PickerDelegate? // Delegate reference
     
-    func addMusic(playlist: Playlist) {
+    func addMusic(to playlist: Playlist, model: PlaylistViewModel) {
         let picker = UIDocumentPickerViewController(forOpeningContentTypes: [.audio])
         picker.allowsMultipleSelection = true
-        self.playlist = playlist
 
         // Assign the delegate and handle picked URLs
         let delegate = PickerDelegate { urls in
@@ -21,12 +19,17 @@ class MusicManager: NSObject, ObservableObject, UIDocumentPickerDelegate {
                     artist: "Unk",
                     filePath: url
                 )
-                DispatchQueue.main.async {
-                    self.playlist?.songs.append(tmp) // Update playlist
+//                DispatchQueue.main.async {
+//                    self.playlist?.songs.append(tmp) // Update playlist
+//                }
+//                playlist.songs.append(tmp)
+                if let index = model.playlists.firstIndex(where: { $0.id == playlist.id }) {
+                    model.playlists[index].songs.append(tmp)
+                    model.savePlaylists()
                 }
-//                self.playlist?.songs.append(tmp)
             }
         }
+        
         picker.delegate = delegate
         pickerDelegate = delegate // Keep a strong reference to the delegate
 
@@ -40,6 +43,7 @@ class MusicManager: NSObject, ObservableObject, UIDocumentPickerDelegate {
             do {
                 audioPlayer?.stop()
                 audioPlayer = try AVAudioPlayer(contentsOf: file)
+//                audioPlayer?.prepareToPlay()
                 audioPlayer?.play()
                 currentTrack = file
             } catch {

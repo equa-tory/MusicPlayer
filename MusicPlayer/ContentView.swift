@@ -117,66 +117,58 @@ struct PlaylistView: View {
 
 
 struct PlaylistDetailView: View {
-    @State var playlist: Playlist
+    let playlist: Playlist
     @ObservedObject var viewModel: PlaylistViewModel
     
     // Audio Player
-    @StateObject private var musicManager = MusicManager()
+    @ObservedObject private var musicManager = MusicManager()
     @State private var pickerDelegate: PickerDelegate? // Delegate reference
 
     var body: some View {
         VStack {
             
-            List {
-                ForEach(playlist.songs) { song in
-                    VStack(alignment: .leading) {
-                        Text(song.title)
-                            .font(.headline)
-                        Text(song.artist)
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                    }
-                    .onTapGesture {
+//            List {
+//                ForEach(playlist.songs) { song in
+//                    VStack(alignment: .leading) {
+//                        Text(song.title)
+//                            .font(.headline)
+//                        Text(song.artist)
+//                            .font(.subheadline)
+//                            .foregroundColor(.secondary)
+//                    }
+//                    .onTapGesture {
 //                        print("PATH: "+song.filePath.absoluteString)
-//                        playAudio(filePath: song.filePath)
-                        //!!play music
-                        musicManager.playMusic(file: song.filePath)
-                    }
-                    .swipeActions {
-                        Button(role: .destructive) {
-                            removeSong(song: song)
-                        } label: {
-                            Label("Delete", systemImage: "trash")
-                        }
-                    }
+////                        playAudio(filePath: song.filePath)
+//                        //!!play music
+//                        musicManager.playMusic(file: song.filePath)
+//                        
+//                    }
+//                    .swipeActions {
+//                        Button(role: .destructive) {
+//                            removeSong(song: song)
+//                        } label: {
+//                            Label("Delete", systemImage: "trash")
+//                        }
+//                    }
+//                }
+//                .onDelete(perform: deletePlaylist) // idk
+//                .onMove(perform: moveSong)
+//            }
+            List(playlist.songs, id: \.id) { song in
+                Button(action: {
+                    print("path: ",song.filePath)
+                    musicManager.playMusic(file: song.filePath)
+                }) {
+                    Text(song.title)
                 }
-                .onDelete(perform: deletePlaylist) // idk
-                .onMove(perform: moveSong)
             }
         }
         .navigationTitle(playlist.name)
         
         Button("Add Music File") {
-//            musicManager.addMusic(playlist: playlist)
-            let picker = UIDocumentPickerViewController(forOpeningContentTypes: [.audio])
-            picker.allowsMultipleSelection = true
-            
-            // Assign the delegate and handle picked URLs
-            let delegate = PickerDelegate { urls in
-                for url in urls {
-                    
-                    let tmp = Song(
-                        title: url.lastPathComponent,
-                        artist: "Unk",
-                        filePath: url
-                    )
-                    playlist.songs.append(tmp)
-                }
-            }
-            picker.delegate = delegate
-            pickerDelegate = delegate // Keep a strong reference to the delegate
-
-            UIApplication.shared.windows.first?.rootViewController?.present(picker, animated: true)
+            // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//            musicManager.addMusic(to: playlist, model: viewModel)
+            addMusic()
         
         }
         .padding()
@@ -186,6 +178,33 @@ struct PlaylistDetailView: View {
 //        .bottomSheet(isPresented: $isBottomSheetPresented) {
 //            PlaybackControls(player: $player)
 //        }
+    }
+    
+    private func addMusic(){
+        let picker = UIDocumentPickerViewController(forOpeningContentTypes: [.audio])
+        picker.allowsMultipleSelection = true
+        
+        // Assign the delegate and handle picked URLs
+        let delegate = PickerDelegate { urls in
+            for url in urls {
+                
+                let tmp = Song(
+                    title: url.lastPathComponent,
+                    artist: "Unk",
+                    filePath: url
+                )
+                if let index = viewModel.playlists.firstIndex(where: { $0.id == playlist.id }) {
+                    viewModel.playlists[index].songs.append(tmp)
+                    viewModel.savePlaylists()
+                }
+//                playlist.songs.append(tmp)
+//                viewModel.savePlaylists()
+            }
+        }
+        picker.delegate = delegate
+        pickerDelegate = delegate // Keep a strong reference to the delegate
+
+        UIApplication.shared.windows.first?.rootViewController?.present(picker, animated: true)
     }
     
     private func playAudio(filePath: String) {
