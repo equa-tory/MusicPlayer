@@ -2,9 +2,9 @@ import SwiftUI
 import AVFoundation
 
 class MusicManager: NSObject, ObservableObject, UIDocumentPickerDelegate {
-    @State private var currentTrack: URL?     // Currently playing track
+    @State private var currentTrack: URL?
     @State private var audioPlayer: AVAudioPlayer?
-    @State private var pickerDelegate: PickerDelegate? // Delegate reference
+    @State private var pickerDelegate: PickerDelegate?
     
     func addMusic(to playlist: Playlist, model: PlaylistViewModel) {
         let picker = UIDocumentPickerViewController(forOpeningContentTypes: [.audio])
@@ -19,27 +19,31 @@ class MusicManager: NSObject, ObservableObject, UIDocumentPickerDelegate {
                     artist: "Unk",
                     filePath: url
                 )
+                
+                
+                // === Update Playlist ===
 //                DispatchQueue.main.async {
-//                    self.playlist?.songs.append(tmp) // Update playlist
+//                    self.playlist?.songs.append(tmp)
 //                }
+
 //                playlist.songs.append(tmp)
-                if let index = model.playlists.firstIndex(where: { $0.id == playlist.id }) {
-                    model.playlists[index].songs.append(tmp)
-                    model.savePlaylists()
-                }
+
+//                if let index = model.playlists.firstIndex(where: { $0.id == playlist.id }) {
+//                    model.playlists[index].songs.append(tmp)
+//                    model.savePlaylists()
+//                }
             }
         }
         
         picker.delegate = delegate
-        pickerDelegate = delegate // Keep a strong reference to the delegate
+        pickerDelegate = delegate
 
         UIApplication.shared.windows.first?.rootViewController?.present(picker, animated: true)
     }
 
     func playMusic(file: URL) {
         if file.startAccessingSecurityScopedResource() {
-            defer { file.stopAccessingSecurityScopedResource() } // Ensure resource is released
-
+            defer { file.stopAccessingSecurityScopedResource() }
             do {
                 audioPlayer?.stop()
                 audioPlayer = try AVAudioPlayer(contentsOf: file)

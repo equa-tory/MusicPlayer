@@ -18,9 +18,4 @@ struct Playlist: Identifiable, Codable {
     let id = UUID()
     var name: String
     var songs: [Song]
-    
-//    init(name: String, songs: [Song]){
-//        self.name = name
-//        self.songs = songs
-//    }
 }

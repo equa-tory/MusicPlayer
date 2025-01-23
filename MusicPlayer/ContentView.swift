@@ -16,42 +16,46 @@ struct ContentView: View {
 
 // ======================================================
 
+// Playlist Model
 class PlaylistViewModel: ObservableObject {
     @Published var playlists: [Playlist] = []
-        
-        private let storageKey = "playlists"
-        
-        init() {
-            loadPlaylists()
-        }
-        
-        func addPlaylist(name: String) {
-            let newPlaylist = Playlist(name: name, songs: [])
-            playlists.append(newPlaylist)
+
+    private let storageKey = "playlists"
+
+    init() {
+        loadPlaylists()
+    }
+
+    func addPlaylist(name: String) {
+        let newPlaylist = Playlist(name: name, songs: [])
+        playlists.append(newPlaylist)
+        savePlaylists()
+    }
+
+    func addSong(to playlist: Playlist, song: Song) {
+        if let index = playlists.firstIndex(where: { $0.id == playlist.id }) {
+            playlists[index].songs.append(song)
             savePlaylists()
         }
-        
-        func addSong(to playlist: Playlist, song: Song) {
-            if let index = playlists.firstIndex(where: { $0.id == playlist.id }) {
-                playlists[index].songs.append(song)
-                savePlaylists()
-            }
+    }
+    
+    // === Saving ===
+
+    public func savePlaylists() {
+        if let data = try? JSONEncoder().encode(playlists) {
+            UserDefaults.standard.set(data, forKey: storageKey)
         }
-        
-        public func savePlaylists() {
-            if let data = try? JSONEncoder().encode(playlists) {
-                UserDefaults.standard.set(data, forKey: storageKey)
-            }
+    }
+
+    private func loadPlaylists() {
+        if let data = UserDefaults.standard.data(forKey: storageKey),
+           let savedPlaylists = try? JSONDecoder().decode([Playlist].self, from: data) {
+            playlists = savedPlaylists
         }
-        
-        private func loadPlaylists() {
-            if let data = UserDefaults.standard.data(forKey: storageKey),
-               let savedPlaylists = try? JSONDecoder().decode([Playlist].self, from: data) {
-                playlists = savedPlaylists
-            }
-        }
+    }
 }
 
+// Home View
 struct PlaylistView: View {
     @StateObject private var viewModel = PlaylistViewModel()
     @State private var newPlaylistName = ""
@@ -73,7 +77,6 @@ struct PlaylistView: View {
                             }
                         }
                     }
-                    .onDelete(perform: deletePlaylists)  //idk
                     .onMove(perform: movePlaylist)
                 }
                 TextField("New Playlist Name", text: $newPlaylistName)
@@ -103,61 +106,30 @@ struct PlaylistView: View {
         }
     }
     
-    // idk
-    private func deletePlaylists(at offsets: IndexSet) {
-        viewModel.playlists.remove(atOffsets: offsets)
-        viewModel.savePlaylists()
-    }
-    
     private func movePlaylist(from source: IndexSet, to destination: Int) {
         viewModel.playlists.move(fromOffsets: source, toOffset: destination)
         viewModel.savePlaylists()
     }
 }
 
-
+// Playlist View
 struct PlaylistDetailView: View {
+    // References
     let playlist: Playlist
     @ObservedObject var viewModel: PlaylistViewModel
     
     // Audio Player
     @ObservedObject private var musicManager = MusicManager()
     @State private var pickerDelegate: PickerDelegate? // Delegate reference
+    @State private var currentTrack: URL?
+    @State private var audioPlayer: AVAudioPlayer?
 
     var body: some View {
         VStack {
-            
-//            List {
-//                ForEach(playlist.songs) { song in
-//                    VStack(alignment: .leading) {
-//                        Text(song.title)
-//                            .font(.headline)
-//                        Text(song.artist)
-//                            .font(.subheadline)
-//                            .foregroundColor(.secondary)
-//                    }
-//                    .onTapGesture {
-//                        print("PATH: "+song.filePath.absoluteString)
-////                        playAudio(filePath: song.filePath)
-//                        //!!play music
-//                        musicManager.playMusic(file: song.filePath)
-//                        
-//                    }
-//                    .swipeActions {
-//                        Button(role: .destructive) {
-//                            removeSong(song: song)
-//                        } label: {
-//                            Label("Delete", systemImage: "trash")
-//                        }
-//                    }
-//                }
-//                .onDelete(perform: deletePlaylist) // idk
-//                .onMove(perform: moveSong)
-//            }
             List(playlist.songs, id: \.id) { song in
                 Button(action: {
                     print("path: ",song.filePath)
-                    musicManager.playMusic(file: song.filePath)
+                    playMusic(file: song.filePath)
                 }) {
                     Text(song.title)
                 }
@@ -166,7 +138,6 @@ struct PlaylistDetailView: View {
         .navigationTitle(playlist.name)
         
         Button("Add Music File") {
-            // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 //            musicManager.addMusic(to: playlist, model: viewModel)
             addMusic()
         
@@ -180,6 +151,7 @@ struct PlaylistDetailView: View {
 //        }
     }
     
+    // Move to MusicManager
     private func addMusic(){
         let picker = UIDocumentPickerViewController(forOpeningContentTypes: [.audio])
         picker.allowsMultipleSelection = true
@@ -197,8 +169,6 @@ struct PlaylistDetailView: View {
                     viewModel.playlists[index].songs.append(tmp)
                     viewModel.savePlaylists()
                 }
-//                playlist.songs.append(tmp)
-//                viewModel.savePlaylists()
             }
         }
         picker.delegate = delegate
@@ -207,9 +177,21 @@ struct PlaylistDetailView: View {
         UIApplication.shared.windows.first?.rootViewController?.present(picker, animated: true)
     }
     
-    private func playAudio(filePath: String) {
-            
-//        isBottomSheetPresented = true
+    func playMusic(file: URL) {
+        if file.startAccessingSecurityScopedResource() {
+            defer { file.stopAccessingSecurityScopedResource() }
+            do {
+                audioPlayer?.stop()
+                audioPlayer = try AVAudioPlayer(contentsOf: file)
+//                audioPlayer?.prepareToPlay()
+                audioPlayer?.play()
+                currentTrack = file
+            } catch {
+                print("Error playing file: \(error.localizedDescription)")
+            }
+        } else {
+            print("Could not access the file.")
+        }
     }
     
     private func removeSong(song: Song) {
@@ -219,12 +201,6 @@ struct PlaylistDetailView: View {
                 viewModel.savePlaylists()
             }
         }
-    }
-    
-    // idk
-    private func deletePlaylist(at offsets: IndexSet) {
-        viewModel.playlists.remove(atOffsets: offsets)
-        viewModel.savePlaylists()
     }
     
     private func moveSong(from source: IndexSet, to destination: Int) {
@@ -238,10 +214,6 @@ struct PlaylistDetailView: View {
                 viewModel.savePlaylists()
             }
         }
-    }
-    
-    private func getDocumentsDirectory() -> URL {
-        FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
     }
 }
 
