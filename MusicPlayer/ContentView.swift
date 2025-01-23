@@ -133,6 +133,13 @@ struct PlaylistDetailView: View {
                 }) {
                     Text(song.title)
                 }
+                .swipeActions {
+                    Button(role: .destructive) {
+                        removeSong(song: song)
+                    } label: {
+                        Label("Delete", systemImage: "trash")
+                    }
+                }
             }
         }
         .navigationTitle(playlist.name)
