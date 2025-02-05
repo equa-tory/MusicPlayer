@@ -7,9 +7,13 @@
 
 import Foundation
 
-struct Song: Identifiable, Codable {
-    let id = UUID()
-    let filePath: URL
-    var title: String
+struct Song: Identifiable, Codable, Equatable {
+    var id = UUID()
+    var filePath: URL
+    var name: String
     var artist: String
+    
+    static func == (lhs: Song, rhs: Song) -> Bool {
+        return lhs.id == rhs.id
+    }
 }

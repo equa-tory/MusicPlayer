@@ -10,6 +10,9 @@ import SwiftUI
 struct ControlPanel: View {
     var body: some View {
         RoundedRectangle(cornerRadius: 50)
-            .fill(Color.gray)
+            .fill(.gray)
+            .shadow(radius: 8, x: 15, y: 15)
+            .frame(height: 100)
+            .padding()
     }
 }

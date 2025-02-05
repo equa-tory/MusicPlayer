@@ -7,8 +7,12 @@
 
 import Foundation
 
-struct Playlist: Identifiable, Codable {
-    let id = UUID()
+struct Playlist: Identifiable, Codable, Equatable {
+    var id = UUID()
     var name: String
     var songs: [Song]
+    
+    static func == (lhs: Playlist, rhs: Playlist) -> Bool {
+        return lhs.id == rhs.id
+    }
 }
