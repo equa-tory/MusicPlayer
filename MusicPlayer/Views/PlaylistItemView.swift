@@ -10,6 +10,7 @@ import SwiftUI
 struct PlaylistItemView: View {
     var playlist: Playlist
     @ObservedObject var viewModel: PlaylistViewModel
+    let anim: Namespace.ID
     
     @State var isRenaming: Bool = false
     @State var newPlaylistName: String = ""
@@ -20,10 +21,10 @@ struct PlaylistItemView: View {
     var body: some View {
         ZStack{
             RoundedRectangle(cornerRadius: 32)
-                .fill(Color.gray)
+                .fill(.gray)
                 .shadow(radius: 5, x: 5, y: 5)
+                .matchedGeometryEffect(id: playlist.id, in: anim)
                 .frame(width:150, height:150)
-//                .matchedGeometryEffect(id: <#T##Hashable#>, in: <#T##Namespace.ID#>)
             
             Text(playlist.name)
                 .font(.title)
@@ -45,12 +46,8 @@ struct PlaylistItemView: View {
         .alert("Rename Playlist", isPresented: $isRenaming, actions: {
             TextField("New Name", text: $newPlaylistName)
             Button("Save", action: {
-                if let playlistToRename = playlistToRename,
-                   let index = viewModel.playlists.firstIndex(of: playlistToRename) {
-                    var updatedPlaylist = playlistToRename
-                    updatedPlaylist.name = newPlaylistName
-                    viewModel.objectWillChange.send() // Force SwiftUI to detect changes
-                    viewModel.playlists[index] = updatedPlaylist  // Trigger UI update
+                if let playlistToRename = playlistToRename {
+                    playlistToRename.name = newPlaylistName
                     viewModel.savePlaylists()
                 }
                 isRenaming = false
@@ -58,9 +55,9 @@ struct PlaylistItemView: View {
             Button("Cancel", role: .cancel) { }
         })
         .onTapGesture {
-//            withAnimation(.spring()) {
+            withAnimation(.spring()) {
                 viewModel.currentPlaylist = playlist
-//            }
+            }
         }
     }
 }

@@ -9,13 +9,25 @@ import SwiftUI
 
 struct MainView: View {
     @StateObject private var viewModel = PlaylistViewModel()
+    @StateObject private var player = AudioPlayer()
+    
+    @Environment(\.horizontalSizeClass) var horizontalSizeClass
     @Environment(\.colorScheme) var colorScheme
-    let aColor = UIColor(named: "ColorScheme")
+    private let aColor = UIColor(named: "ColorScheme")
     
     @State private var creatingPlaylist: Bool = false
     @State private var newPlaylistName: String = ""
     
+    @Namespace private var anim
+    
     // ======================================================
+    
+    init() {
+        // create music folder
+        if !FileManager.default.fileExists(atPath: DocumentMusicFolder.absoluteString) {
+            try! FileManager.default.createDirectory(at: DocumentMusicFolder, withIntermediateDirectories: true, attributes: nil)
+        }
+    }
 
     var body: some View {
         NavigationStack {
@@ -23,9 +35,8 @@ struct MainView: View {
                 let columns = Array(repeating: GridItem(.flexible(), spacing: -64), count: 2)
                 ScrollView {
                     LazyVGrid(columns: columns) {
-                        
                         ForEach(viewModel.playlists) { playlist in
-                            PlaylistItemView(playlist: playlist, viewModel: viewModel)
+                            PlaylistItemView(playlist: playlist, viewModel: viewModel, anim: anim)
                         }
                     }
                 }
@@ -42,10 +53,13 @@ struct MainView: View {
                 BackgroundTint(viewModel: viewModel)
                 
                 VStack {
-                    /// Playlist Inside
-                    PlaylistView(viewModel: viewModel)
-                        .opacity(viewModel.currentPlaylist == nil ? 0 : 1)
-                        .padding()
+                    /// Playlist View
+                    if let pl = viewModel.currentPlaylist {
+                        PlaylistView(playlist: pl, anim: anim, player: player)
+                            .opacity(viewModel.currentPlaylist == nil ? 0 : 1)
+                            .padding()
+                    }
+                    else { Spacer() }
                     
                     /// Contorl Panel: REDO
                     ControlPanel()

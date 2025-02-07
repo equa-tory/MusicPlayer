@@ -10,13 +10,31 @@ import SwiftUI
 import AVFoundation
 
 class PlaylistViewModel: ObservableObject {
-//    @Published var customPlaylists: [Playlist] = []
     @Published var playlists: [Playlist] = []
     @Published var currentPlaylist: Playlist?
     @Published var audioPlayer: AVAudioPlayer?
     @State private var pickerDelegate: PickerDelegate?
 
     private let storageKey = "playlists"
+    
+    // ======================================================
+    
+    func ImportUserSongFromFilesApp(url: URL) {
+        let songFileName = url.lastPathComponent
+        let songName = url.deletingPathExtension().lastPathComponent
+        let songPath = DocumentMusicFolder.appendingPathComponent(songFileName)
+        if ImportFileFromFilesApp(url, to: songPath) {
+            self.currentPlaylist!.songs.append(Song(name: songName, artist:"Unk", filePath: songPath))
+            self.savePlaylists()
+            self.currentPlaylist = self.currentPlaylist
+        }
+    }
+    
+    /// Song duration
+    //    func duration(for path: URL) -> Double {
+    //        let asset = AVURLAsset(url: path)
+    //        return Double(CMTimeGetSeconds(asset.duration))
+    //    }
     
     // ======================================================
 
@@ -36,11 +54,12 @@ class PlaylistViewModel: ObservableObject {
             playlists = savedPlaylists
         }
     }
-
+    
     func addSong(_ song: Song, to playlist: Playlist) {
         if let index = playlists.firstIndex(of: playlist) {
             playlists[index].songs.append(song)
             savePlaylists()
+            playlists = playlists
         }
     }
 
@@ -52,43 +71,16 @@ class PlaylistViewModel: ObservableObject {
         }
     }
 
-    func playMusic(_ file: URL) {
-        do {
-            audioPlayer?.stop()
-            audioPlayer = try AVAudioPlayer(contentsOf: file)
-            audioPlayer?.prepareToPlay()
-            audioPlayer?.play()
-        } catch {
-            print("Error playing file: \(error.localizedDescription)")
-        }
-    }
-    
-    // ======================================================
-
-    func openPicker() {
-        let picker = UIDocumentPickerViewController(forOpeningContentTypes: [.audio])
-        picker.allowsMultipleSelection = true
-        
-        // Assign the delegate and handle picked URLs
-        let delegate = PickerDelegate { urls in
-            for url in urls {
-                
-                let song = Song(
-                    filePath: url,
-                    name: url.lastPathComponent,
-                    artist: "Unk"
-                )
-//                self.objectWillChange.send() // Force SwiftUI to detect changes
-//                self.currentPlaylist?.songs.append(song)
-//                self.savePlaylists()
-                
-                self.addSong(song, to: self.currentPlaylist!)
-            }
-        }
-        picker.delegate = delegate
-        pickerDelegate = delegate // Keep a strong reference to the delegate
-        
-        UIApplication.shared.windows.first?.rootViewController?.present(picker, animated: true)
-    }
+    /// Old Playing
+//    func playMusic(_ file: URL) {
+//        do {
+//            audioPlayer?.stop()
+//            audioPlayer = try AVAudioPlayer(contentsOf: file)
+//            audioPlayer?.prepareToPlay()
+//            audioPlayer?.play()
+//        } catch {
+//            print("Error playing file: \(error.localizedDescription)")
+//        }
+//    }
     
 }

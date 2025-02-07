@@ -16,9 +16,9 @@ struct BackgroundTint: View {
         Color.black.opacity(viewModel.currentPlaylist == nil ? 0 : 0.5)
             .ignoresSafeArea()
             .onTapGesture {
-//                withAnimation(.spring()) {
+                withAnimation(.spring()) {
                     viewModel.currentPlaylist = nil
-//                }
+                }
             }
     }
 }

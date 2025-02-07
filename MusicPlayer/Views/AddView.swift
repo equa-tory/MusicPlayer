@@ -13,6 +13,8 @@ struct AddView: View {
     @Binding var creatingPlaylist: Bool
     @Binding var newPlaylistName: String
     
+    @State var importingMusic: Bool = false
+    
     // ======================================================
 
     var body: some View {
@@ -21,8 +23,21 @@ struct AddView: View {
                 creatingPlaylist = true
             }
             else {
-                viewModel.openPicker()
-//                viewModel.currentPlaylist?.songs.append(Song(filePath: URL.downloadsDirectory.appendingPathComponent("test.mp3"), name:"Test",artist: "Unk"))
+                // https://stackoverflow.com/questions/69613669/swiftui-fileimporter-cannot-show-again-after-dismissing-by-swipe-down
+                if importingMusic {
+                    // NOTE: Fixes broken fileimporter sheet not resetting on swipedown
+                    importingMusic = false
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                        importingMusic = true
+                    }
+                } else {
+                    importingMusic = true
+                }
+                
+                /// Debug
+                /// {
+                //                viewModel.currentPlaylist?.songs.append(Song(filePath: URL.downloadsDirectory.appendingPathComponent("test.mp3"), name:"Test",artist: "Unk"))
+                /// }
             }
         }) {
             Label("Add", systemImage: "plus")
@@ -40,5 +55,18 @@ struct AddView: View {
             })
             Button("Cancel", role: .cancel) { }
         })
+        .fileImporter(isPresented: $importingMusic,
+                        allowedContentTypes: [.audio], allowsMultipleSelection:true) { result in
+              do {
+                  let fileUrl = try result.get()
+                  for url in fileUrl {
+                      viewModel.ImportUserSongFromFilesApp(url: url)
+                  }
+                  importingMusic = false
+              } catch {
+                  print("[ERR] Importing music: \(error.localizedDescription)")
+              }
+            importingMusic = false
+          }
     }
 }

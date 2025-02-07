@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftUI
+import MediaPlayer
 
 class PickerDelegate: NSObject, UIDocumentPickerDelegate {
     private let onPicked: ([URL]) -> Void

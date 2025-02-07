@@ -13,6 +13,6 @@ struct ControlPanel: View {
             .fill(.gray)
             .shadow(radius: 8, x: 15, y: 15)
             .frame(height: 100)
-            .padding()
+            .padding(.horizontal)
     }
 }
