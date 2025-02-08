@@ -12,7 +12,7 @@ struct ControlPanel: View {
         RoundedRectangle(cornerRadius: 50)
             .fill(.gray)
             .shadow(radius: 8, x: 15, y: 15)
-            .frame(height: 100)
+            .frame(height: 90)
             .padding(.horizontal)
     }
 }

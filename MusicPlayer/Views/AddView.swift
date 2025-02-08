@@ -15,6 +15,8 @@ struct AddView: View {
     
     @State var importingMusic: Bool = false
     
+    @ObservedObject var library: Library
+    
     // ======================================================
 
     var body: some View {
@@ -60,7 +62,8 @@ struct AddView: View {
               do {
                   let fileUrl = try result.get()
                   for url in fileUrl {
-                      viewModel.ImportUserSongFromFilesApp(url: url)
+//                      viewModel.ImportUserSongFromFilesApp(url: url)
+                      library.ImportUserSongFromFilesApp(url: url)
                   }
                   importingMusic = false
               } catch {

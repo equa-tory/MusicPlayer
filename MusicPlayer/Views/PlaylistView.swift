@@ -94,6 +94,7 @@ struct PlaylistView: View {
                         .frame(width:150, height:166)
                         .onTapGesture {
                             player.prepareAndStartPlayingAudio(url: song.filePath)
+//                            print("\(song.filePath)")
                         }
                         
                     }

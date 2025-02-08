@@ -10,6 +10,7 @@ import SwiftUI
 struct MainView: View {
     @StateObject private var viewModel = PlaylistViewModel()
     @StateObject private var player = AudioPlayer()
+    @ObservedObject private var library = Library()
     
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
     @Environment(\.colorScheme) var colorScheme
@@ -35,13 +36,14 @@ struct MainView: View {
                 let columns = Array(repeating: GridItem(.flexible(), spacing: -64), count: 2)
                 ScrollView {
                     LazyVGrid(columns: columns) {
+                        PlaylistItemView(playlist: Playlist(name:"All", songs: library.songs), viewModel: viewModel, anim: anim)
                         ForEach(viewModel.playlists) { playlist in
                             PlaylistItemView(playlist: playlist, viewModel: viewModel, anim: anim)
                         }
                     }
                 }
                 .toolbar {
-                    AddView(viewModel: viewModel, creatingPlaylist: $creatingPlaylist, newPlaylistName: $newPlaylistName)
+                    AddView(viewModel: viewModel, creatingPlaylist: $creatingPlaylist, newPlaylistName: $newPlaylistName, library: library)
                 }
                 .tint(colorScheme == .dark ? .white : .black)
                 /// Alt playlist view

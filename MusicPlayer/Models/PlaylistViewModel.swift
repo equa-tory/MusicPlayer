@@ -19,16 +19,16 @@ class PlaylistViewModel: ObservableObject {
     
     // ======================================================
     
-    func ImportUserSongFromFilesApp(url: URL) {
-        let songFileName = url.lastPathComponent
-        let songName = url.deletingPathExtension().lastPathComponent
-        let songPath = DocumentMusicFolder.appendingPathComponent(songFileName)
-        if ImportFileFromFilesApp(url, to: songPath) {
-            self.currentPlaylist!.songs.append(Song(name: songName, artist:"Unk", filePath: songPath))
-            self.savePlaylists()
-            self.currentPlaylist = self.currentPlaylist
-        }
-    }
+//    func ImportUserSongFromFilesApp(url: URL) {
+//        let songFileName = url.lastPathComponent
+//        let songName = url.deletingPathExtension().lastPathComponent
+//        let songPath = DocumentMusicFolder.appendingPathComponent(songFileName)
+//        if ImportFileFromFilesApp(url, to: songPath) {
+//            self.currentPlaylist!.songs.append(Song(name: songName, artist:"Unk", filePath: songPath))
+//            self.savePlaylists()
+//            self.currentPlaylist = self.currentPlaylist
+//        }
+//    }
     
     /// Song duration
     //    func duration(for path: URL) -> Double {

@@ -22,10 +22,10 @@ final class AudioPlayer: ObservableObject {
     public func prepareAudio(url: URL) {
         audioPlayer?.stop() // audioPlayer == nil -> won't call
         isPlaying = false
-
+        
         audioPlayer = try! AVAudioPlayer(contentsOf: url)
         audioPlayer!.delegate = audioPlayerDelegate
-
+        
         audioPlayer!.enableRate = true // should set `enableRate` to true before the first play
     }
 
