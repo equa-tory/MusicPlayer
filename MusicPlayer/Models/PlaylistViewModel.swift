@@ -12,23 +12,10 @@ import AVFoundation
 class PlaylistViewModel: ObservableObject {
     @Published var playlists: [Playlist] = []
     @Published var currentPlaylist: Playlist?
-    @Published var audioPlayer: AVAudioPlayer?
-    @State private var pickerDelegate: PickerDelegate?
 
     private let storageKey = "playlists"
     
     // ======================================================
-    
-//    func ImportUserSongFromFilesApp(url: URL) {
-//        let songFileName = url.lastPathComponent
-//        let songName = url.deletingPathExtension().lastPathComponent
-//        let songPath = DocumentMusicFolder.appendingPathComponent(songFileName)
-//        if ImportFileFromFilesApp(url, to: songPath) {
-//            self.currentPlaylist!.songs.append(Song(name: songName, artist:"Unk", filePath: songPath))
-//            self.savePlaylists()
-//            self.currentPlaylist = self.currentPlaylist
-//        }
-//    }
     
     /// Song duration
     //    func duration(for path: URL) -> Double {
@@ -55,13 +42,13 @@ class PlaylistViewModel: ObservableObject {
         }
     }
     
-    func addSong(_ song: Song, to playlist: Playlist) {
-        if let index = playlists.firstIndex(of: playlist) {
-            playlists[index].songs.append(song)
-            savePlaylists()
-            playlists = playlists
-        }
-    }
+//    func addSong(_ song: Song, to playlist: Playlist) {
+//        if let index = playlists.firstIndex(of: playlist) {
+//            playlists[index].songs.append(song)
+//            savePlaylists()
+//            playlists = playlists
+//        }
+//    }
 
     func deleteSong(_ song: Song, from playlist: Playlist) {
         if let playlistIndex = playlists.firstIndex(of: playlist),

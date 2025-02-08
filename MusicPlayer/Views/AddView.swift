@@ -15,8 +15,6 @@ struct AddView: View {
     
     @State var importingMusic: Bool = false
     
-    @ObservedObject var library: Library
-    
     // ======================================================
 
     var body: some View {
@@ -57,19 +55,13 @@ struct AddView: View {
             })
             Button("Cancel", role: .cancel) { }
         })
-        .fileImporter(isPresented: $importingMusic,
-                        allowedContentTypes: [.audio], allowsMultipleSelection:true) { result in
-              do {
-                  let fileUrl = try result.get()
-                  for url in fileUrl {
-//                      viewModel.ImportUserSongFromFilesApp(url: url)
-                      library.ImportUserSongFromFilesApp(url: url)
-                  }
-                  importingMusic = false
-              } catch {
-                  print("[ERR] Importing music: \(error.localizedDescription)")
-              }
-            importingMusic = false
-          }
+        .fileImporter(
+            isPresented: $importingMusic,
+            allowedContentTypes: [.audio],
+            allowsMultipleSelection: false
+        ) { url in
+            /// Importing Song
+//            viewModel.currentPlaylist.addMusic()
+        }
     }
 }

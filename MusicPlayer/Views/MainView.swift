@@ -9,8 +9,6 @@ import SwiftUI
 
 struct MainView: View {
     @StateObject private var viewModel = PlaylistViewModel()
-    @StateObject private var player = AudioPlayer()
-    @ObservedObject private var library = Library()
     
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
     @Environment(\.colorScheme) var colorScheme
@@ -22,13 +20,6 @@ struct MainView: View {
     @Namespace private var anim
     
     // ======================================================
-    
-    init() {
-        // create music folder
-        if !FileManager.default.fileExists(atPath: DocumentMusicFolder.absoluteString) {
-            try! FileManager.default.createDirectory(at: DocumentMusicFolder, withIntermediateDirectories: true, attributes: nil)
-        }
-    }
 
     var body: some View {
         NavigationStack {
@@ -36,14 +27,13 @@ struct MainView: View {
                 let columns = Array(repeating: GridItem(.flexible(), spacing: -64), count: 2)
                 ScrollView {
                     LazyVGrid(columns: columns) {
-                        PlaylistItemView(playlist: Playlist(name:"All", songs: library.songs), viewModel: viewModel, anim: anim)
                         ForEach(viewModel.playlists) { playlist in
                             PlaylistItemView(playlist: playlist, viewModel: viewModel, anim: anim)
                         }
                     }
                 }
                 .toolbar {
-                    AddView(viewModel: viewModel, creatingPlaylist: $creatingPlaylist, newPlaylistName: $newPlaylistName, library: library)
+                    AddView(viewModel: viewModel, creatingPlaylist: $creatingPlaylist, newPlaylistName: $newPlaylistName)
                 }
                 .tint(colorScheme == .dark ? .white : .black)
                 /// Alt playlist view
@@ -57,7 +47,7 @@ struct MainView: View {
                 VStack {
                     /// Playlist View
                     if let pl = viewModel.currentPlaylist {
-                        PlaylistView(playlist: pl, anim: anim, player: player)
+                        PlaylistView(playlist: pl, anim: anim, viewModel: viewModel)
                             .opacity(viewModel.currentPlaylist == nil ? 0 : 1)
                             .padding()
                     }

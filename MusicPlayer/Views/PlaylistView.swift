@@ -6,16 +6,19 @@
 //
 
 import SwiftUI
+import AVFAudio
 
 struct PlaylistView: View {
     var playlist: Playlist
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
     let anim: Namespace.ID
-
-    let player: AudioPlayer
+    let viewModel: PlaylistViewModel
+    
+    @State private var currentTrack: URL?
+    @State private var audioPlayer: AVAudioPlayer?
     
     // ======================================================
-
+    
     var body: some View {
         ZStack {
             /// BG
@@ -52,6 +55,7 @@ struct PlaylistView: View {
                 /// Vertical Spacing between items
                 LazyVGrid(columns: columns, spacing: 0) {
                     
+                    /// Debug
 //                    ForEach(0..<21) {_ in
 //                        ZStack{
 //                            RoundedRectangle(cornerRadius: 32)
@@ -93,8 +97,8 @@ struct PlaylistView: View {
                         .padding(.top, 16) /// Vertical padding in items
                         .frame(width:150, height:166)
                         .onTapGesture {
-                            player.prepareAndStartPlayingAudio(url: song.filePath)
-//                            print("\(song.filePath)")
+                            /// Playing song
+                            
                         }
                         
                     }
