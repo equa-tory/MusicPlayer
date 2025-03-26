@@ -14,11 +14,30 @@ struct PlaylistView: View {
     let anim: Namespace.ID
     let viewModel: PlaylistViewModel
     
+    
+    @State private var pickerDelegate: PickerDelegate?
     @State private var currentTrack: URL?
     @State private var audioPlayer: AVAudioPlayer?
     
-    // ======================================================
+    func playMusic(file: URL) {
+        if file.startAccessingSecurityScopedResource() {
+            defer { file.stopAccessingSecurityScopedResource() }
+            do {
+                audioPlayer?.stop()
+                audioPlayer = try AVAudioPlayer(contentsOf: file)
+//                audioPlayer?.prepareToPlay()
+                audioPlayer?.play()
+                currentTrack = file
+            } catch {
+                print("Error playing file: \(error.localizedDescription)")
+            }
+        } else {
+            print("Could not access the file.")
+        }
+    }
     
+    // ======================================================
+
     var body: some View {
         ZStack {
             /// BG
@@ -98,7 +117,7 @@ struct PlaylistView: View {
                         .frame(width:150, height:166)
                         .onTapGesture {
                             /// Playing song
-                            
+                            playMusic(file: song.filePath)
                         }
                         
                     }

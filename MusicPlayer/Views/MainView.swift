@@ -53,7 +53,7 @@ struct MainView: View {
                     }
                     else { Spacer() }
                     
-                    /// Contorl Panel: REDO
+                    /// Control Panel: REDO
                     ControlPanel()
                 }
             }

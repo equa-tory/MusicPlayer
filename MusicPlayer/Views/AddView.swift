@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import AVFAudio
 
 struct AddView: View {
     @ObservedObject var viewModel: PlaylistViewModel
@@ -24,15 +25,17 @@ struct AddView: View {
             }
             else {
                 // https://stackoverflow.com/questions/69613669/swiftui-fileimporter-cannot-show-again-after-dismissing-by-swipe-down
-                if importingMusic {
-                    // NOTE: Fixes broken fileimporter sheet not resetting on swipedown
-                    importingMusic = false
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                        importingMusic = true
-                    }
-                } else {
-                    importingMusic = true
-                }
+//                if importingMusic {
+//                    // NOTE: Fixes broken fileimporter sheet not resetting on swipedown
+//                    importingMusic = false
+//                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+//                        importingMusic = true
+//                    }
+//                } else {
+//                    importingMusic = true
+//                }
+                
+                viewModel.addMusic()
                 
                 /// Debug
                 /// {
@@ -61,7 +64,8 @@ struct AddView: View {
             allowsMultipleSelection: false
         ) { url in
             /// Importing Song
-//            viewModel.currentPlaylist.addMusic()
+            
         }
     }
+    
 }
